@@ -60,11 +60,13 @@ jobs:
       
       - name: Deploy application
         run: |
-          # Cleanup existing process
-          pm2 delete node-app || true
+          # Cleanup existing process - PowerShell style
+          pm2 delete node-app 2>$null
+          if ($LASTEXITCODE -ne 0) { Write-Host "No existing process to delete" }
           
-          # Start application with PM2
-          pm2 start ./src/server.js --name node-app
+          # Start application
+          pm2 start src/server.js --name node-app
           
           # Save PM2 process list
           pm2 save
+        shell: pwsh
