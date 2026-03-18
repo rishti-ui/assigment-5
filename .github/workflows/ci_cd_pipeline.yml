@@ -69,4 +69,4 @@ jobs:
           
           # Save PM2 process list
           pm2 save
-        shell: pwsh
+        shell: powershell
