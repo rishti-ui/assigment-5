@@ -71,6 +71,9 @@ jobs:
       
       - name: Deploy application
         run: |
+          # Set PM2 home to a writable directory
+          $env:PM2_HOME = "$env:USERPROFILE\.pm2"
+    
           # Cleanup existing process (ignore error if not found)
           pm2 delete node-app -ErrorAction SilentlyContinue
           
