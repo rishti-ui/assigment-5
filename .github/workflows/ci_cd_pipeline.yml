@@ -69,7 +69,7 @@ jobs:
           }
         shell: powershell
       
-      - name: Deploy application
+      - name: Deploy applications
         run: |
           # Set PM2 home to a writable directory
           $env:PM2_HOME = "$env:USERPROFILE\.pm2"
