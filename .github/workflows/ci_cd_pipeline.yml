@@ -33,40 +33,55 @@ jobs:
           path: test-results.txt
 
   deploy:
-    needs: test
-    runs-on: self-hosted
-
+  needs: test
+  runs-on: self-hosted
+  
+  steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
     
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-      
-      - name: Download test results artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: test-results
-      
-      - name: Display artifact content
-        run: type test-results.txt
-        shell : cmd
-      
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '22'
-      
-      - name: Install dependencies
-        run: npm install
-      
-      - name: Deploy application
-        run: |
-          # Cleanup existing process - PowerShell style
-          pm2 delete node-app 2>$null
-          if ($LASTEXITCODE -ne 0) { Write-Host "No existing process to delete" }
-          
-          # Start application
-          pm2 start src/server.js --name node-app
-          
-          # Save PM2 process list
-          pm2 save
-        shell: powershell
+    - name: Download test results artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: test-results
+    
+    - name: Display artifact content
+      run: type test-results.txt
+      shell: cmd
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '22'
+    
+    - name: Install dependencies
+      run: npm install
+      shell: cmd
+    
+    - name: Ensure PM2 is installed
+      run: |
+        # Check if PM2 exists, install if not
+        if (!(Get-Command pm2 -ErrorAction SilentlyContinue)) {
+            Write-Host "PM2 not found. Installing globally..."
+            npm install -g pm2
+        } else {
+            Write-Host "PM2 is already installed"
+        }
+      shell: powershell
+    
+    - name: Deploy application
+      run: |
+        # Cleanup existing process (ignore error if not found)
+        pm2 delete node-app -ErrorAction SilentlyContinue
+        
+        # Start application
+        Write-Host "Starting application with PM2..."
+        pm2 start src/server.js --name node-app
+        
+        # Save PM2 process list
+        pm2 save
+        
+        # Show running processes
+        pm2 list
+      shell: powershell
+    
