@@ -47,7 +47,8 @@ jobs:
           name: test-results
       
       - name: Display artifact content
-        run: cat test-results.txt
+        run: type test-results.txt
+        shell : cmd
       
       - name: Setup Node.js
         uses: actions/setup-node@v3
